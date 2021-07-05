@@ -38,7 +38,7 @@
 
 	Mavo.Plugins.register("firebase-firestore", {
 		dependencies: [
-			"https://cdn.jsdelivr.net/gh/DmitrySharabin/mavo-firebase-firestore/mavo-firebase-firestore.css"
+			"https://cdn.jsdelivr.net/gh/guidolang/mavo-firebase-firestore/mavo-firebase-firestore.css"
 		],
 
 		hooks: {
@@ -98,6 +98,7 @@
 						auth: false,
 						storage: false,
 						realtime: false,
+            notshared: false,
 						"offline-persistence": false,
 						"all-can-write": false,
 						"all-can-edit": false
@@ -256,7 +257,11 @@
 									};
 
 									$.fire(o.mavo.element, "mv-login", { backend: this });
-
+									// Set filename to user ID if notshared feature is set
+                  if (this.features.notshared)
+                  {
+                    this.filename = this.user.info.uid;
+                  };
 									this.permissions.off("login").on(["edit", "save", "logout"]);
 								}
 								else {
@@ -269,6 +274,20 @@
 										.off(["edit", "add", "delete", "save", "logout"])
 										.on(defaultPermissions);
 								}
+                // Reload window once after auth state changed
+                (function()
+                {
+                  if (window.localStorage)
+                  {
+                    if (!localStorage.getItem('authStateChanged'))
+                    {
+                      localStorage['authStateChanged'] = true;
+                      window.location.reload();
+                    }
+                    else
+                      localStorage.removeItem('authStateChanged')
+                  }
+                })();
 							});
 						}
 
